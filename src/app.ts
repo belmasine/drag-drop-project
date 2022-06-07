@@ -8,10 +8,34 @@ function Bounder(_: any, _2: string, descriptor: PropertyDescriptor) {
             return originalMethod.bind(this);
         },
     };
-    console.log("adjDescriptor", adjDescriptor);
     return adjDescriptor;
 }
+interface Validator {
+    value: string | number;
+    required?: boolean;
+    min?: number;
+    max?: number;
+    positive?: boolean;
+}
 
+function validate(validInput: Validator) {
+    let isValid = true;
+    if (validInput.required) {
+        isValid = isValid && !!validInput.value.toString().trim().length;
+    }
+    if (validInput.positive) {
+        isValid = isValid && validInput.value > 0;
+    }
+    if (validInput.min) {
+        isValid = isValid && (validInput.value > validInput.min);
+    }
+    if (validInput.max) {
+        isValid = isValid && (validInput.value < validInput.max);
+    }
+
+    return isValid;
+}
+type allowedTypes = [string, string, number] | void;
 class FormInput {
     templateInput: HTMLTemplateElement;
     divOutput: HTMLElement;
@@ -50,12 +74,50 @@ class FormInput {
         this.divOutput.insertAdjacentElement("afterbegin", this.form);
     }
 
+    private getDataInputs(): allowedTypes {
+        const inputs = Object.values(this.formInputs).map(input => input.value);
+        const [title, description, people] = inputs;
+
+        const titleValidator: Validator = {
+            value: title,
+            required: true
+        }
+        const descriptionValidator: Validator = {
+            value: description,
+            required: true
+        }
+
+        const peopleValidator: Validator = {
+            value: +people,
+            required: true,
+            positive: true,
+            min: 1,
+            max: 5
+        }
+
+        if (!validate(titleValidator) ||
+            !validate(descriptionValidator) ||
+            !validate(peopleValidator)
+        ) {
+            return;
+        }
+
+        return [title, description, +people];
+    }
+
     @Bounder
     private handleSubmit(e: Event) {
-        console.log("*******");
         e.preventDefault();
 
-        console.log("formInputs", this.formInputs.title.value);
+        if (this.getDataInputs() !== undefined) {
+            this.reset();
+        }
+    }
+
+    private reset() {
+        this.formInputs.title.value = ""
+        this.formInputs.description.value = ""
+        this.formInputs.people.value = ""
     }
 }
 
