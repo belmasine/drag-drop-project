@@ -27,20 +27,59 @@ function validate(validInput: Validator) {
         isValid = isValid && validInput.value > 0;
     }
     if (validInput.min) {
-        isValid = isValid && (validInput.value > validInput.min);
+        isValid = isValid && validInput.value > validInput.min;
     }
     if (validInput.max) {
-        isValid = isValid && (validInput.value < validInput.max);
+        isValid = isValid && validInput.value < validInput.max;
     }
 
     return isValid;
 }
 type allowedTypes = [string, string, number] | void;
-class FormInput {
+type status = "active" | "finished";
+
+abstract class MainProject {
     templateInput: HTMLTemplateElement;
     divOutput: HTMLElement;
-    form: HTMLFormElement;
+    constructor(id: string, targetId: string) {
+        this.templateInput = document.getElementById(id)! as HTMLTemplateElement;
 
+        this.divOutput = document.getElementById(targetId)! as HTMLElement;
+    }
+    abstract joinTo(): any;
+}
+
+class ProjectList extends MainProject {
+    section: HTMLElement;
+
+    constructor(private type: status) {
+        super("project-list", "app");
+
+        // deep copy
+        const copyTemplateInput = document.importNode(
+            this.templateInput.content,
+            true
+        );
+
+        this.section = copyTemplateInput.firstElementChild as HTMLElement;
+        this.section.id = `${this.type}-projects-list`;
+
+        this.joinTo();
+        this.renderSection();
+    }
+    joinTo() {
+        this.divOutput.insertAdjacentElement("beforeend", this.section);
+    }
+
+    private renderSection() {
+        const idList = `${this.type}-projects-list`;
+        this.section.querySelector("ul")!.id = idList;
+        this.section.querySelector("h2")!.textContent = this.type + " projects ";
+    }
+}
+
+class FormInput extends MainProject {
+    form: HTMLFormElement;
     formInputs: {
         title: HTMLInputElement;
         description: HTMLInputElement;
@@ -48,10 +87,7 @@ class FormInput {
     };
 
     constructor() {
-        this.templateInput = document.getElementById(
-            "form-input"
-        )! as HTMLTemplateElement;
-        this.divOutput = document.getElementById("app")! as HTMLElement;
+        super("form-input", "app");
         // deep copy
         const copyTemplateInput = document.importNode(
             this.templateInput.content,
@@ -70,32 +106,31 @@ class FormInput {
         this.joinTo();
     }
 
-    private joinTo() {
+    joinTo() {
         this.divOutput.insertAdjacentElement("afterbegin", this.form);
     }
 
     private getDataInputs(): allowedTypes {
-        const inputs = Object.values(this.formInputs).map(input => input.value);
+        const inputs = Object.values(this.formInputs).map((input) => input.value);
         const [title, description, people] = inputs;
-
         const titleValidator: Validator = {
             value: title,
-            required: true
-        }
+            required: true,
+        };
         const descriptionValidator: Validator = {
             value: description,
-            required: true
-        }
-
+            required: true,
+        };
         const peopleValidator: Validator = {
             value: +people,
             required: true,
             positive: true,
             min: 1,
-            max: 5
-        }
+            max: 5,
+        };
 
-        if (!validate(titleValidator) ||
+        if (
+            !validate(titleValidator) ||
             !validate(descriptionValidator) ||
             !validate(peopleValidator)
         ) {
@@ -115,10 +150,12 @@ class FormInput {
     }
 
     private reset() {
-        this.formInputs.title.value = ""
-        this.formInputs.description.value = ""
-        this.formInputs.people.value = ""
+        this.formInputs.title.value = "";
+        this.formInputs.description.value = "";
+        this.formInputs.people.value = "";
     }
 }
 
 const formInput = new FormInput();
+const projLActive = new ProjectList("active");
+const projLFinished = new ProjectList("finished");
