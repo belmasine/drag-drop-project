@@ -66,7 +66,7 @@ class Project {
 }
 
 class FormInput extends MainProject<HTMLFormElement> {
-   
+
     formInputs: {
         title: HTMLInputElement;
         description: HTMLInputElement;
@@ -75,7 +75,7 @@ class FormInput extends MainProject<HTMLFormElement> {
 
     constructor() {
         super("form-input", "app", "user-input");
-       
+
         this.formInputs = {
             title: <HTMLInputElement>this.element.querySelector("#title"),
             description: <HTMLInputElement>this.element.querySelector("#description"),
@@ -140,13 +140,23 @@ class FormInput extends MainProject<HTMLFormElement> {
         this.formInputs.people.value = "";
     }
 }
-type Listener = (items: Project[]) => void;
-class ProjectState {
+
+type Listener<T> = (items: T[]) => void;
+class State<T> {
+    listeners: Listener<T>[] = []
+    constructor() {
+    }
+
+    addListener(l: Listener<T>) {
+        this.listeners.push(l);
+    }
+}
+class ProjectState extends State<Project> {
     private projects: Project[] = [];
-    private listeners: Listener[] = [];
     private static instance: ProjectState;
 
-    private constructor() {
+     constructor() {
+        super();
     }
 
     static getInstance() {
@@ -155,10 +165,6 @@ class ProjectState {
         }
         this.instance = new ProjectState();
         return this.instance;
-    }
-
-    addListener(fn: Listener) {
-        this.listeners.push(fn);
     }
 
     addProject(t: string, d: string, n: number) {
@@ -171,7 +177,6 @@ class ProjectState {
 }
 
 class ProjectList extends MainProject<HTMLElement> {
-    listeners: Listener[] = [];
     registeredProjects: Project[] = [];
 
     constructor(private type: 'active' | 'finished') {
