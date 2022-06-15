@@ -1,4 +1,7 @@
-namespace App {
+
+import { MainProject } from "../components/MainProject.js"
+import { stateProject } from "../state/state.js"
+import { Project, Status } from "../models/Project.js"
     export class ProjectList extends MainProject<HTMLElement> {
         registeredProjects: Project[] = [];
     
@@ -38,4 +41,4 @@ namespace App {
             this.element.querySelector("h2")!.textContent = this.type + " projects ";
         }
     }
-}
+
