@@ -1,8 +1,7 @@
-
-import { MainProject } from "../components/MainProject.js"
-import { stateProject } from "../state/state.js"
-import { Project, Status } from "../models/Project.js"
-    export class ProjectList extends MainProject<HTMLElement> {
+import Main from "../components/MainProject"
+import { stateProject } from "../state/state"
+import { Project, Status } from "../models/Project"
+    export class ProjectList extends Main<HTMLElement> {
         registeredProjects: Project[] = [];
     
         constructor(private type: 'active' | 'finished') {

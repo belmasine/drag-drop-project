@@ -1,5 +1,4 @@
-
-export abstract class MainProject<T extends HTMLElement> {
+export default abstract class MainProject<T extends HTMLElement> {
     templateInput: HTMLTemplateElement;
     divOutput: HTMLElement;
     element: T;

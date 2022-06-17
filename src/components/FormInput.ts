@@ -1,7 +1,7 @@
-import { MainProject } from "./MainProject.js"
-import { Validator, validate } from "../utils/validations.js"
-import { stateProject } from "../state/state.js"
-import { binder } from "../decorators/binder.js"
+import MainProject  from "./MainProject"
+import { Validator, validate } from "../utils/validations"
+import { stateProject } from "../state/state"
+import { binder } from "../decorators/binder"
 
 
 type allowedTypes = [string, string, number] | void;
